@@ -61,7 +61,7 @@ public class StartUpRunner implements CommandLineRunner {
                     promotersMenu(scanner);
                     break;
                 case "6":
-                    System.out.println("Reports coming in Phase 4.");
+                    reportsMenu(scanner);
                     break;
                 case "0":
                     running = false;
@@ -796,6 +796,119 @@ public class StartUpRunner implements CommandLineRunner {
 
         } catch (NumberFormatException e) {
             System.out.println("Invalid id.");
+        }
+    }
+
+    public void reportsMenu(Scanner scanner) {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== Reports ====");
+            System.out.println("1) Revenue per venue");
+            System.out.println("2) Busiest venue and artist");
+            System.out.println("3) Average ticket price by year");
+            System.out.println("4) Capacity report");
+            System.out.println("0) Back");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    revenuePerVenueReport();
+                    break;
+                case "2":
+                    busiestVenueAndArtistReport();
+                    break;
+                case "3":
+                    averagePriceByYearReport();
+                    break;
+                case "4":
+                    capacityReport();
+                    break;
+                case "0":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+    public void revenuePerVenueReport() {
+        List<Object[]> results = concertService.revenuePerVenue();
+
+        if (results.isEmpty()) {
+            System.out.println("No revenue data found.");
+            return;
+        }
+
+        System.out.println("\n=== Revenue Per Venue ===");
+
+        for (Object[] row : results) {
+            String venueName = (String) row[0];
+            Double revenue = (Double) row[1];
+
+            System.out.printf("%s | Revenue: $%.2f%n", venueName, revenue);
+        }
+    }
+    public void busiestVenueAndArtistReport() {
+        List<Object[]> venues = concertService.busiestVenues();
+        List<Object[]> artists = concertService.busiestArtists();
+
+        if (venues.isEmpty() || artists.isEmpty()) {
+            System.out.println("No concert data found.");
+            return;
+        }
+
+        Object[] busiestVenue = venues.get(0);
+        Object[] busiestArtist = artists.get(0);
+
+        System.out.println("\n=== Busiest Venue and Artist ===");
+        System.out.println("Busiest Venue: " + busiestVenue[0] + " | Concerts: " + busiestVenue[1]);
+        System.out.println("Busiest Artist: " + busiestArtist[0] + " | Concerts: " + busiestArtist[1]);
+    }
+    public void averagePriceByYearReport() {
+        List<Object[]> results = concertService.averagePriceByYear();
+
+        if (results.isEmpty()) {
+            System.out.println("No average price data found.");
+            return;
+        }
+
+        System.out.println("\n=== Average Ticket Price By Year ===");
+
+        for (Object[] row : results) {
+            Integer year = (Integer) row[0];
+            Double averagePrice = (Double) row[1];
+
+            System.out.printf("%d | Average Price: $%.2f%n", year, averagePrice);
+        }
+    }
+    public void capacityReport() {
+        List<Concert> concerts = concertService.getAllConcerts();
+
+        if (concerts.isEmpty()) {
+            System.out.println("No concerts found.");
+            return;
+        }
+
+        System.out.println("\n=== Capacity Report ===");
+
+        for (Concert concert : concerts) {
+            double percentFull =
+                    (concert.getTicketsSold() * 100.0) / concert.getVenue().getCapacity();
+
+            String status = percentFull >= 100 ? "SOLD OUT" : "";
+
+            System.out.printf(
+                    "%s at %s | Tickets Sold: %,d / %,d | %.2f%% full %s%n",
+                    concert.getArtist().getName(),
+                    concert.getVenue().getName(),
+                    concert.getTicketsSold(),
+                    concert.getVenue().getCapacity(),
+                    percentFull,
+                    status
+            );
         }
     }
 

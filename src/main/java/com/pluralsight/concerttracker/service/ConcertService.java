@@ -101,5 +101,21 @@ public class ConcertService {
         return concertRepository.advancedSearch(maxPrice, earliestYear);
     }
 
+    public List<Object[]> revenuePerVenue() {
+        return concertRepository.revenuePerVenue();
+    }
+
+    public List<Object[]> busiestVenues() {
+        return concertRepository.busiestVenues();
+    }
+
+    public List<Object[]> busiestArtists() {
+        return concertRepository.busiestArtists();
+    }
+
+    public List<Object[]> averagePriceByYear() {
+        return concertRepository.averagePriceByYear();
+    }
+
 
 }
