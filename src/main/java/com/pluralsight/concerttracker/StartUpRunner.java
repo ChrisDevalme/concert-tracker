@@ -299,25 +299,25 @@ public class StartUpRunner implements CommandLineRunner {
 
             switch (choice) {
                 case "1":
-                    System.out.println("Search by year coming soon.");
+                    searchByYear(scanner);
                     break;
                 case "2":
-                    System.out.println("Search by artist coming soon.");
+                    searchByArtist(scanner);
                     break;
                 case "3":
-                    System.out.println("Search by venue coming soon.");
+                    searchByVenue(scanner);
                     break;
                 case "4":
-                    System.out.println("Search by city coming soon.");
+                    searchByCity(scanner);
                     break;
                 case "5":
-                    System.out.println("Search by max price coming soon.");
+                    searchByMaxPrice(scanner);
                     break;
                 case "6":
-                    System.out.println("Search by price range coming soon.");
+                    searchByPriceRange(scanner);
                     break;
                 case "7":
-                    System.out.println("Advanced search coming soon.");
+                    advancedConcertSearch(scanner);
                     break;
                 case "0":
                     running = false;
@@ -326,6 +326,82 @@ public class StartUpRunner implements CommandLineRunner {
                     System.out.println("Invalid choice. Try again.");
             }
         }
+    }
+    public void searchByYear(Scanner scanner) {
+        try {
+            System.out.print("Enter year: ");
+            int year = Integer.parseInt(scanner.nextLine());
+
+            printConcertResults(concertService.findConcertsByYear(year));
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid year.");
+        }
+    }
+    public void searchByArtist(Scanner scanner) {
+        System.out.print("Enter artist name: ");
+        String artistName = scanner.nextLine();
+
+        printConcertResults(concertService.findConcertsByArtist(artistName));
+    }
+    public void searchByVenue(Scanner scanner) {
+        System.out.print("Enter venue name: ");
+        String venueName = scanner.nextLine();
+
+        printConcertResults(concertService.findConcertsByVenue(venueName));
+    }
+    public void searchByCity(Scanner scanner) {
+        System.out.print("Enter city: ");
+        String city = scanner.nextLine();
+
+        printConcertResults(concertService.findConcertsByCity(city));
+    }
+    public void searchByMaxPrice(Scanner scanner) {
+        try {
+            System.out.print("Enter maximum ticket price: ");
+            double maxPrice = Double.parseDouble(scanner.nextLine());
+
+            printConcertResults(concertService.findConcertsByMaxPrice(maxPrice));
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid price.");
+        }
+    }
+    public void searchByPriceRange(Scanner scanner) {
+        try {
+            System.out.print("Enter minimum price: ");
+            double minPrice = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Enter maximum price: ");
+            double maxPrice = Double.parseDouble(scanner.nextLine());
+
+            printConcertResults(concertService.findConcertsByPriceRange(minPrice, maxPrice));
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid price.");
+        }
+    }
+    public void advancedConcertSearch(Scanner scanner) {
+        try {
+            System.out.print("Enter maximum ticket price: ");
+            double maxPrice = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Enter earliest year: ");
+            int earliestYear = Integer.parseInt(scanner.nextLine());
+
+            printConcertResults(concertService.advancedSearch(maxPrice, earliestYear));
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+        }
+    }
+    public void printConcertResults(List<Concert> concerts) {
+        if (concerts.isEmpty()) {
+            System.out.println("No concerts found.");
+            return;
+        }
+
+        concerts.forEach(System.out::println);
     }
 
     public void artistsMenu(Scanner scanner) {

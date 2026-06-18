@@ -37,13 +37,10 @@ public class ConcertService {
         if (newPrice < 0) {
             throw new IllegalArgumentException("Ticket price cannot be negative.");
         }
-
         Concert concert = concertRepository.findById(id).orElse(null);
-
         if (concert == null) {
             return null;
         }
-
         concert.setTicketPrice(newPrice);
         return concertRepository.save(concert);
     }
@@ -74,6 +71,34 @@ public class ConcertService {
 
         concertRepository.deleteById(id);
         return true;
+    }
+
+    public List<Concert> findConcertsByYear(int year) {
+        return concertRepository.findByConcertYear(year);
+    }
+
+    public List<Concert> findConcertsByArtist(String artistName) {
+        return concertRepository.findByArtistName(artistName);
+    }
+
+    public List<Concert> findConcertsByVenue(String venueName) {
+        return concertRepository.findByVenueName(venueName);
+    }
+
+    public List<Concert> findConcertsByCity(String city) {
+        return concertRepository.findByCity(city);
+    }
+
+    public List<Concert> findConcertsByMaxPrice(double maxPrice) {
+        return concertRepository.findByTicketPriceLessThanEqual(maxPrice);
+    }
+
+    public List<Concert> findConcertsByPriceRange(double minPrice, double maxPrice) {
+        return concertRepository.findByTicketPriceBetween(minPrice, maxPrice);
+    }
+
+    public List<Concert> advancedSearch(double maxPrice, int earliestYear) {
+        return concertRepository.advancedSearch(maxPrice, earliestYear);
     }
 
 
