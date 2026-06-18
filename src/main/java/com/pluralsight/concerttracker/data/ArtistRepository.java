@@ -1,4 +1,11 @@
 package com.pluralsight.concerttracker.data;
 
-public class ArtistRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.pluralsight.concerttracker.models.Artist;
+
+
+public interface ArtistRepository extends JpaRepository<Artist, Long> {
+    
+
 }
