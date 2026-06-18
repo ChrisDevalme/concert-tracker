@@ -1,11 +1,12 @@
 package com.pluralsight.concerttracker.service;
 
-import com.pluralsight.concerttracker.data.VenueRepository;
-import com.pluralsight.concerttracker.models.Venue;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.pluralsight.concerttracker.data.VenueRepository;
+import com.pluralsight.concerttracker.models.Venue;
 
 @Service
 public class VenueService {
@@ -25,7 +26,53 @@ public class VenueService {
         return venueRepository.findAll();
     }
 
+
+    public Venue getVenueById(Long id) {
+        return venueRepository.findById(id).orElse(null);
+    }
+
     public long count() {
         return venueRepository.count();
     }
+
+    public Venue updateCapacity(Long id, int capacity) {
+        Venue venue = venueRepository.findById(id).orElse(null);
+
+        if (venue == null) {
+            return null;
+        }
+
+        if (capacity < 0) {
+            throw new IllegalArgumentException("Capacity cannot be negative.");
+        }
+
+        venue.setCapacity(capacity);
+        return venueRepository.save(venue);
+    }
+
+
+    public boolean deleteVenue(Long id) {
+        if (!venueRepository.existsById(id)) {
+            return false;
+        }
+
+        venueRepository.deleteById(id);
+        return true;
+    }
+
+    public List<Venue> findVenuesByCity(String city) {
+        return venueRepository.findByCityIgnoreCase(city);
+    }
+
+    public List<Venue> findVenuesByName(String name) {
+        return venueRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Venue> findVenuesByMinimumCapacity(int capacity) {
+        return venueRepository.findByCapacityGreaterThanEqual(capacity);
+    }
+
+    
+
+    
 }

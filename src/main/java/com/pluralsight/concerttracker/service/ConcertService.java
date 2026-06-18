@@ -28,4 +28,53 @@ public class ConcertService {
     public long count() {
         return concertRepository.count();
     }
+
+    public Concert getConcertById(Long id) {
+        return concertRepository.findById(id).orElse(null);
+    }
+
+    public Concert updateTicketPrice(Long id, double newPrice) {
+        if (newPrice < 0) {
+            throw new IllegalArgumentException("Ticket price cannot be negative.");
+        }
+
+        Concert concert = concertRepository.findById(id).orElse(null);
+
+        if (concert == null) {
+            return null;
+        }
+
+        concert.setTicketPrice(newPrice);
+        return concertRepository.save(concert);
+    }
+
+    public Concert updateTicketsSold(Long id, int ticketsSold) {
+        if (ticketsSold < 0) {
+            throw new IllegalArgumentException("Tickets sold cannot be negative.");
+        }
+
+        Concert concert = concertRepository.findById(id).orElse(null);
+
+        if (concert == null) {
+            return null;
+        }
+
+        if (ticketsSold > concert.getVenue().getCapacity()) {
+            throw new IllegalArgumentException("Tickets sold cannot exceed venue capacity.");
+        }
+
+        concert.setTicketsSold(ticketsSold);
+        return concertRepository.save(concert);
+    }
+
+    public boolean deleteConcert(Long id) {
+        if (!concertRepository.existsById(id)) {
+            return false;
+        }
+
+        concertRepository.deleteById(id);
+        return true;
+    }
+
+
 }

@@ -25,6 +25,23 @@ public class PromoterService {
         return promoterRepository.findAll();
     }
 
+    public Promoter getPromoterById(Long id) {
+        return promoterRepository.findById(id).orElse(null);
+    }
+
+    public List<Promoter> findPromotersByName(String name) {
+        return promoterRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public boolean deletePromoter(Long id) {
+        if (!promoterRepository.existsById(id)) {
+            return false;
+        }
+
+        promoterRepository.deleteById(id);
+        return true;
+    }
+
     public long count() {
         return promoterRepository.count();
     }

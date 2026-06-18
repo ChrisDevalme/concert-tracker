@@ -28,4 +28,32 @@ public class ArtistService {
     public long count() {
         return artistRepository.count();
     }
+
+    public Artist getArtistById(Long id) {
+        return artistRepository.findById(id).orElse(null);
+    }
+
+    public List<Artist> findArtistsByGenre(String genre) {
+        return artistRepository.findByGenreIgnoreCase(genre);
+    }
+    public List<Artist> findArtistsByName(String name) {
+        return artistRepository.findByNameContainingIgnoreCase(name);
+    }
+    public Artist updateGenre(Long id, String genre) {
+        Artist artist = artistRepository.findById(id).orElse(null);
+
+        if (artist == null) {
+            return null;
+        }
+
+        artist.setGenre(genre);
+        return artistRepository.save(artist);
+    }
+    public boolean deleteArtist(Long id) {
+        if (!artistRepository.existsById(id)) {
+            return false;
+        }
+        artistRepository.deleteById(id);
+        return true;
+    }
 }

@@ -29,4 +29,13 @@ public class Promoter {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "ID: %d | Name: %s",
+                id,
+                name
+        );
+    }
 }

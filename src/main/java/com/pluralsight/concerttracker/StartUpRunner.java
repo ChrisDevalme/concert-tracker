@@ -39,34 +39,39 @@ public class StartUpRunner implements CommandLineRunner {
         boolean running = true;
 
         displayMenu();
-        String choice = scanner.nextLine();
 
-        switch (choice) {
-            case "1":
-                displayAllConcerts();
-                break;
-            case "2":
-                System.out.println("Search concerts menu coming soon...");
-                break;
-            case "3":
-                System.out.println("Artists menu coming soon...");
-                break;
-            case "4":
-                System.out.println("Venues menu coming soon...");
-                break;
-            case "5":
-                System.out.println("Promoters menu coming soon...");
-                break;
-            case "6":
-                System.out.println("Reports menu coming soon...");
-                break;
-            case "0":
-                running = false;
-                System.out.println("Goodbye!");
-                break;
-            default:
-                System.out.println("Invalid choice. Try again.");
+        while (running) {
+            displayMenu();
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    concertsMenu(scanner);
+                    break;
+                case "2":
+                    searchConcertsMenu(scanner);
+                    break;
+                case "3":
+                    artistsMenu(scanner);
+                    break;
+                case "4":
+                    venuesMenu(scanner);
+                    break;
+                case "5":
+                    promotersMenu(scanner);
+                    break;
+                case "6":
+                    System.out.println("Reports coming in Phase 4.");
+                    break;
+                case "0":
+                    running = false;
+                    System.out.println("Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
         }
+        scanner.close();
     }
 
     public void displayMenu() {
@@ -81,6 +86,643 @@ public class StartUpRunner implements CommandLineRunner {
         System.out.print("Your Choice: ");
     }
 
+    public void concertsMenu(Scanner scanner) {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== Concerts ====");
+            System.out.println("1) List all concerts");
+            System.out.println("2) View concert by id");
+            System.out.println("3) Add concert");
+            System.out.println("4) Update ticket price");
+            System.out.println("5) Update tickets sold");
+            System.out.println("6) Delete concert");
+            System.out.println("0) Back");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    displayAllConcerts();
+                    break;
+                case "2":
+                    viewConcertById(scanner);
+                    break;
+                case "3":
+                    addConcert(scanner);
+                    break;
+                case "4":
+                    updateConcertPrice(scanner);
+                    break;
+                case "5":
+                    updateTicketsSold(scanner);
+                    break;
+                case "6":
+                    deleteConcert(scanner);
+                    break;
+                case "0":
+                    System.out.println("Leaving Concert Menu...");
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+    public void viewConcertById(Scanner scanner) {
+        try {
+            System.out.print("Enter concert id: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            Concert concert = concertService.getConcertById(id);
+
+            if (concert == null) {
+                System.out.println("Concert not found.");
+                return;
+            }
+
+            System.out.println("\n=== Concert Details ===");
+            System.out.println(concert);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+    public void addConcert(Scanner scanner) {
+        try {
+            System.out.println("\nChoose an artist:");
+            artistService.getAllArtists().forEach(System.out::println);
+
+            System.out.print("Artist id: ");
+            Long artistId = Long.parseLong(scanner.nextLine());
+            Artist artist = artistService.getArtistById(artistId);
+
+            if (artist == null) {
+                System.out.println("Artist not found.");
+                return;
+            }
+
+            System.out.println("\nChoose a venue:");
+            venueService.getAllVenues().forEach(System.out::println);
+
+            System.out.print("Venue id: ");
+            Long venueId = Long.parseLong(scanner.nextLine());
+            Venue venue = venueService.getVenueById(venueId);
+
+            if (venue == null) {
+                System.out.println("Venue not found.");
+                return;
+            }
+
+            System.out.println("\nChoose a promoter:");
+            promoterService.getAllPromoters().forEach(System.out::println);
+
+            System.out.print("Promoter id: ");
+            Long promoterId = Long.parseLong(scanner.nextLine());
+            Promoter promoter = promoterService.getPromoterById(promoterId);
+
+            if (promoter == null) {
+                System.out.println("Promoter not found.");
+                return;
+            }
+
+            System.out.print("Year: ");
+            int year = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Ticket price: ");
+            double price = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Tickets sold: ");
+            int ticketsSold = Integer.parseInt(scanner.nextLine());
+
+            Concert concert = new Concert(year, price, ticketsSold, artist, venue, promoter);
+            Concert savedConcert = concertService.addConcert(concert);
+
+            System.out.println("Concert added successfully.");
+            System.out.println(savedConcert);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void updateConcertPrice(Scanner scanner) {
+        try {
+            displayAllConcerts();
+
+            System.out.print("Enter concert id: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Enter new ticket price: ");
+            double newPrice = Double.parseDouble(scanner.nextLine());
+
+            Concert updatedConcert = concertService.updateTicketPrice(id, newPrice);
+
+            if (updatedConcert == null) {
+                System.out.println("Concert not found.");
+                return;
+            }
+
+            System.out.println("Ticket price updated successfully.");
+            System.out.println(updatedConcert);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void updateTicketsSold(Scanner scanner) {
+        try {
+            displayAllConcerts();
+
+            System.out.print("Enter concert id: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Enter new tickets sold: ");
+            int ticketsSold = Integer.parseInt(scanner.nextLine());
+
+            Concert updatedConcert = concertService.updateTicketsSold(id, ticketsSold);
+
+            if (updatedConcert == null) {
+                System.out.println("Concert not found.");
+                return;
+            }
+
+            System.out.println("Tickets sold updated successfully.");
+            System.out.println(updatedConcert);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void deleteConcert(Scanner scanner) {
+        try {
+            displayAllConcerts();
+
+            System.out.print("Enter concert id to delete: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            boolean deleted = concertService.deleteConcert(id);
+
+            if (deleted) {
+                System.out.println("Concert deleted successfully.");
+            } else {
+                System.out.println("Concert not found.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+
+    public void searchConcertsMenu(Scanner scanner) {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== Search Concerts ====");
+            System.out.println("1) Search by year");
+            System.out.println("2) Search by artist");
+            System.out.println("3) Search by venue");
+            System.out.println("4) Search by city");
+            System.out.println("5) Search by maximum price");
+            System.out.println("6) Search by price range");
+            System.out.println("7) Advanced search");
+            System.out.println("0) Back");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    System.out.println("Search by year coming soon.");
+                    break;
+                case "2":
+                    System.out.println("Search by artist coming soon.");
+                    break;
+                case "3":
+                    System.out.println("Search by venue coming soon.");
+                    break;
+                case "4":
+                    System.out.println("Search by city coming soon.");
+                    break;
+                case "5":
+                    System.out.println("Search by max price coming soon.");
+                    break;
+                case "6":
+                    System.out.println("Search by price range coming soon.");
+                    break;
+                case "7":
+                    System.out.println("Advanced search coming soon.");
+                    break;
+                case "0":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    public void artistsMenu(Scanner scanner) {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== Artists ====");
+            System.out.println("1) List artists");
+            System.out.println("2) Add artist");
+            System.out.println("3) Find artists by genre");
+            System.out.println("4) Find artists by name");
+            System.out.println("5) Update artist genre");
+            System.out.println("6) Delete artist");
+            System.out.println("0) Back");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    listArtists();
+                    break;
+                case "2":
+                    addArtist(scanner);
+                    break;
+                case "3":
+                    findArtistsByGenre(scanner);
+                    break;
+                case "4":
+                    findArtistsByName(scanner);
+                    break;
+                case "5":
+                    updateArtistGenre(scanner);
+                    break;
+                case "6":
+                    deleteArtist(scanner);
+                    break;
+                case "0":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+    public void listArtists() {
+        List<Artist> artists = artistService.getAllArtists();
+
+        if (artists.isEmpty()) {
+            System.out.println("No artists found.");
+            return;
+        }
+
+        System.out.println("\n=== Artists ===");
+        artists.forEach(System.out::println);
+    }
+    public void addArtist(Scanner scanner) {
+        System.out.print("Artist name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Genre: ");
+        String genre = scanner.nextLine();
+
+        Artist savedArtist = artistService.addArtist(new Artist(name, genre));
+
+        System.out.println("Artist added successfully.");
+        System.out.println(savedArtist);
+    }
+    public void findArtistsByGenre(Scanner scanner) {
+        System.out.print("Enter genre: ");
+        String genre = scanner.nextLine();
+
+        List<Artist> artists = artistService.findArtistsByGenre(genre);
+
+        if (artists.isEmpty()) {
+            System.out.println("No artists found with that genre.");
+            return;
+        }
+
+        artists.forEach(System.out::println);
+    }
+    public void findArtistsByName(Scanner scanner) {
+        System.out.print("Enter artist name search: ");
+        String name = scanner.nextLine();
+
+        List<Artist> artists = artistService.findArtistsByName(name);
+
+        if (artists.isEmpty()) {
+            System.out.println("No artists found with that name.");
+            return;
+        }
+
+        artists.forEach(System.out::println);
+    }
+    public void updateArtistGenre(Scanner scanner) {
+        try {
+            listArtists();
+
+            System.out.print("Enter artist id: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Enter new genre: ");
+            String genre = scanner.nextLine();
+
+            Artist updatedArtist = artistService.updateGenre(id, genre);
+
+            if (updatedArtist == null) {
+                System.out.println("Artist not found.");
+                return;
+            }
+
+            System.out.println("Artist genre updated successfully.");
+            System.out.println(updatedArtist);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+    public void deleteArtist(Scanner scanner) {
+        try {
+            listArtists();
+
+            System.out.print("Enter artist id to delete: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            boolean deleted = artistService.deleteArtist(id);
+
+            if (deleted) {
+                System.out.println("Artist deleted successfully.");
+            } else {
+                System.out.println("Artist not found.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+
+    public void venuesMenu(Scanner scanner) {
+        boolean running = true;
+
+    while (running) {
+        System.out.println("\n==== Venues ====");
+        System.out.println("1) List venues");
+        System.out.println("2) Add venue");
+        System.out.println("3) Find venues by city");
+        System.out.println("4) Find venues by name");
+        System.out.println("5) Find venues by minimum capacity");
+        System.out.println("6) Update venue capacity");
+        System.out.println("7) Delete venue");
+        System.out.println("0) Back");
+        System.out.print("Your choice: ");
+
+        String choice = scanner.nextLine();
+
+        switch (choice) {
+            case "1":
+                listVenues();
+                break;
+            case "2":
+                addVenue(scanner);
+                break;
+            case "3":
+                findVenuesByCity(scanner);
+                break;
+            case "4":
+                findVenuesByName(scanner);
+                break;
+            case "5":
+                findVenuesByMinimumCapacity(scanner);
+                break;
+            case "6":
+                updateVenueCapacity(scanner);
+                break;
+            case "7":
+                deleteVenue(scanner);
+                break;
+            case "0":
+                running = false;
+                break;
+            default:
+                System.out.println("Invalid choice. Try again.");
+        }
+    }
+    }
+    public void listVenues() {
+        List<Venue> venues = venueService.getAllVenues();
+
+        if (venues.isEmpty()) {
+            System.out.println("No venues found.");
+            return;
+        }
+
+        System.out.println("\n=== Venues ===");
+        venues.forEach(System.out::println);
+    }
+    public void addVenue(Scanner scanner) {
+        try {
+            System.out.print("Venue name: ");
+            String name = scanner.nextLine();
+
+            System.out.print("City: ");
+            String city = scanner.nextLine();
+
+            System.out.print("Capacity: ");
+            int capacity = Integer.parseInt(scanner.nextLine());
+
+            Venue venue = new Venue(name, city, capacity);
+            Venue savedVenue = venueService.addVenue(venue);
+
+            System.out.println("Venue added successfully.");
+            System.out.println(savedVenue);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid capacity.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void findVenuesByCity(Scanner scanner) {
+        System.out.print("Enter city: ");
+        String city = scanner.nextLine();
+
+        List<Venue> venues = venueService.findVenuesByCity(city);
+
+        if (venues.isEmpty()) {
+            System.out.println("No venues found in that city.");
+            return;
+        }
+
+        venues.forEach(System.out::println);
+    }
+    public void findVenuesByName(Scanner scanner) {
+        System.out.print("Enter venue name search: ");
+        String name = scanner.nextLine();
+
+        List<Venue> venues = venueService.findVenuesByName(name);
+
+        if (venues.isEmpty()) {
+            System.out.println("No venues found with that name.");
+            return;
+        }
+
+        venues.forEach(System.out::println);
+    }
+    public void findVenuesByMinimumCapacity(Scanner scanner) {
+        try {
+            System.out.print("Enter minimum capacity: ");
+            int capacity = Integer.parseInt(scanner.nextLine());
+
+            List<Venue> venues = venueService.findVenuesByMinimumCapacity(capacity);
+
+            if (venues.isEmpty()) {
+                System.out.println("No venues found with that capacity.");
+                return;
+            }
+
+            venues.forEach(System.out::println);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid capacity.");
+        }
+    }
+    public void updateVenueCapacity(Scanner scanner) {
+        try {
+            listVenues();
+
+            System.out.print("Enter venue id: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Enter new capacity: ");
+            int capacity = Integer.parseInt(scanner.nextLine());
+
+            Venue updatedVenue = venueService.updateCapacity(id, capacity);
+
+            if (updatedVenue == null) {
+                System.out.println("Venue not found.");
+                return;
+            }
+
+            System.out.println("Venue capacity updated successfully.");
+            System.out.println(updatedVenue);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void deleteVenue(Scanner scanner) {
+        try {
+            listVenues();
+
+            System.out.print("Enter venue id to delete: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            boolean deleted = venueService.deleteVenue(id);
+
+            if (deleted) {
+                System.out.println("Venue deleted successfully.");
+            } else {
+                System.out.println("Venue not found.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+
+    public void promotersMenu(Scanner scanner) {
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n==== Promoters ====");
+            System.out.println("1) List promoters");
+            System.out.println("2) Add promoter");
+            System.out.println("3) Find promoters by name");
+            System.out.println("4) Delete promoter");
+            System.out.println("0) Back");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    listPromoters();
+                    break;
+                case "2":
+                    addPromoter(scanner);
+                    break;
+                case "3":
+                    findPromotersByName(scanner);
+                    break;
+                case "4":
+                    deletePromoter(scanner);
+                    break;
+                case "0":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+    public void listPromoters() {
+        List<Promoter> promoters = promoterService.getAllPromoters();
+
+        if (promoters.isEmpty()) {
+            System.out.println("No promoters found.");
+            return;
+        }
+
+        System.out.println("\n=== Promoters ===");
+        promoters.forEach(System.out::println);
+    }
+    public void addPromoter(Scanner scanner) {
+        System.out.print("Promoter name: ");
+        String name = scanner.nextLine();
+
+        Promoter savedPromoter = promoterService.addPromoter(new Promoter(name));
+
+        System.out.println("Promoter added successfully.");
+        System.out.println(savedPromoter);
+    }
+    public void findPromotersByName(Scanner scanner) {
+        System.out.print("Enter promoter name search: ");
+        String name = scanner.nextLine();
+
+        List<Promoter> promoters = promoterService.findPromotersByName(name);
+
+        if (promoters.isEmpty()) {
+            System.out.println("No promoters found with that name.");
+            return;
+        }
+
+        promoters.forEach(System.out::println);
+    }
+    public void deletePromoter(Scanner scanner) {
+        try {
+            listPromoters();
+
+            System.out.print("Enter promoter id to delete: ");
+            Long id = Long.parseLong(scanner.nextLine());
+
+            boolean deleted = promoterService.deletePromoter(id);
+
+            if (deleted) {
+                System.out.println("Promoter deleted successfully.");
+            } else {
+                System.out.println("Promoter not found.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid id.");
+        }
+    }
+
     public void displayAllConcerts() {
         List<Concert> concerts = concertService.getAllConcerts();
         if (concerts.isEmpty()) {
@@ -88,18 +730,8 @@ public class StartUpRunner implements CommandLineRunner {
             return;
         }
         System.out.println("\n=== All Concerts ===");
-        for (Concert concert : concerts) {
-            System.out.println(
-                    "ID: " + concert.getId() +
-                            " | Artist: " + concert.getArtist().getName() +
-                            " | Venue: " + concert.getVenue().getName() +
-                            " | Year: " + concert.getConcertYear() +
-                            " | Price: $" + concert.getTicketPrice() +
-                            " | Tickets Sold: " + concert.getTicketSold()
-            );
-        }
+        concerts.forEach(System.out::println);
     }
-
 
     public void seedData() {
         if (concertService.count() > 0) {
